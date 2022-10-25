@@ -7,23 +7,33 @@ import {
   Where,
 } from '@loopback/repository';
 import {
-  post,
-  param,
+  del,
   get,
   getModelSchemaRef,
+  param,
   patch,
+  post,
   put,
-  del,
   requestBody,
   response,
 } from '@loopback/rest';
-import {Prospectos} from '../models';
-import {ProspectosRepository} from '../repositories';
+import {Llaves} from '../config/llaves';
+import {Prospectos, Rol, Usuario} from '../models';
+import {
+  ProspectosRepository,
+  RolRepository,
+  UsuarioRepository,
+} from '../repositories';
+const fetch = require('node-fetch');
 
 export class ProspectosController {
   constructor(
     @repository(ProspectosRepository)
-    public prospectosRepository : ProspectosRepository,
+    public prospectosRepository: ProspectosRepository,
+    @repository(RolRepository)
+    public rolRepository: RolRepository,
+    @repository(UsuarioRepository)
+    public usuarioRepository: UsuarioRepository,
   ) {}
 
   @post('/prospectos')
@@ -44,7 +54,75 @@ export class ProspectosController {
     })
     prospectos: Omit<Prospectos, 'id'>,
   ): Promise<Prospectos> {
-    return this.prospectosRepository.create(prospectos);
+    const prospecto = await this.prospectosRepository.create(prospectos);
+
+    const roles = await this.rolRepository.find();
+    let rolUsuario: Rol = new Rol();
+
+    // eslint-disable-next-line @typescript-eslint/prefer-for-of
+    for (let index = 0; index < roles.length; index++) {
+      const element = roles[index];
+      // eslint-disable-next-line eqeqeq
+      if (element.codigo == 'ADMIN') {
+        rolUsuario = element;
+      }
+    }
+
+    const filter: Filter<Usuario> = {
+      where: {
+        rolId: rolUsuario.id,
+      },
+      fields: {
+        correo: true,
+        nombres: true,
+        apellidos: true,
+      },
+      offset: 0,
+      limit: 10,
+      skip: 0,
+      order: [],
+    };
+
+    const users = await this.usuarioRepository.find(filter);
+
+    if (users.length > 0) {
+      // eslint-disable-next-line @typescript-eslint/prefer-for-of
+      for (let index = 0; index < users.length; index++) {
+        const admin = users[index];
+
+        //Notificar usuario
+        const body = {
+          to: admin.correo,
+          subject: 'Nuevo Prospecto - Mascota Feliz',
+          text: `Hola ${admin.nombres} ${admin.apellidos}, se ha registrado en la aplicación un nuevo prospecto
+            <br/>
+            Nombre: ${prospecto.nombres}
+            <br/>
+            Correo: ${prospecto.correo}
+            <br/>
+            Mensaje: ${prospecto.mensaje} `,
+        };
+
+        try {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const responses = await fetch(
+            `${Llaves.urlServicioNotificaciones}/mail`,
+            {
+              method: 'post',
+              body: JSON.stringify(body),
+              headers: {'Content-Type': 'application/json'},
+            },
+          );
+          const data = await responses.json();
+
+          console.log(data);
+        } catch (error) {
+          console.log(error);
+        }
+      }
+    }
+
+    return prospecto;
   }
 
   @get('/prospectos/count')
@@ -106,7 +184,8 @@ export class ProspectosController {
   })
   async findById(
     @param.path.number('id') id: number,
-    @param.filter(Prospectos, {exclude: 'where'}) filter?: FilterExcludingWhere<Prospectos>
+    @param.filter(Prospectos, {exclude: 'where'})
+    filter?: FilterExcludingWhere<Prospectos>,
   ): Promise<Prospectos> {
     return this.prospectosRepository.findById(id, filter);
   }

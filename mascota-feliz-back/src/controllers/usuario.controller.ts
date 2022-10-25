@@ -98,7 +98,7 @@ export class UsuarioController {
       //Notificar usuario
       const body = {
         to: userFound.correo,
-        subject: 'Restablecer la contraseña',
+        subject: 'Restablecer la contraseña - Mascota Feliz',
         text: `Hola ${userFound.nombres} ${userFound.apellidos}, su nombre de usuario es: ${userFound.correo} y contraseña: ${clave}`,
       };
 
@@ -174,7 +174,7 @@ export class UsuarioController {
     //Notificar usuario
     const body = {
       to: user.correo,
-      subject: 'Registro en la Plataforma',
+      subject: 'Registro en la Plataforma - Mascota Feliz',
       text: `Hola ${user.nombres} ${user.apellidos}, su nombre de usuario es: ${user.correo} y contraseña: ${clave}`,
     };
 
