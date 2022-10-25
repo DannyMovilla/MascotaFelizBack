@@ -76,6 +76,55 @@ export class UsuarioController {
     }
   }
 
+  @post('/reset-password/{usuario}', {
+    responses: {
+      '200': {
+        description: 'Restablecer la contraseña',
+      },
+    },
+  })
+  async resetPassword(@param.path.string('usuario') usuario: string) {
+    const userFound = await this.usuarioRepository.findOne({
+      where: {correo: usuario},
+    });
+    if (userFound) {
+      const clave = this.authServices.generarClave();
+      const claveCifrada = this.authServices.cifrarClave(clave);
+
+      userFound.contrasena = claveCifrada;
+
+      await this.usuarioRepository.updateById(userFound.id, userFound);
+
+      //Notificar usuario
+      const body = {
+        to: userFound.correo,
+        subject: 'Restablecer la contraseña',
+        text: `Hola ${userFound.nombres} ${userFound.apellidos}, su nombre de usuario es: ${userFound.correo} y contraseña: ${clave}`,
+      };
+
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const responses = await fetch(
+          `${Llaves.urlServicioNotificaciones}/mail`,
+          {
+            method: 'post',
+            body: JSON.stringify(body),
+            headers: {'Content-Type': 'application/json'},
+          },
+        );
+        const data = await responses.json();
+
+        console.log(data);
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      throw new HttpErrors[404](
+        'No se ha encontrado un Usuario con el correo ingreasado' + usuario,
+      );
+    }
+  }
+
   @post('/usuarios')
   @response(200, {
     description: 'Usuario model instance',
@@ -126,7 +175,7 @@ export class UsuarioController {
     const body = {
       to: user.correo,
       subject: 'Registro en la Plataforma',
-      text: `Hola ${user.nombres}, su nombre de usuario es: ${user.correo} y contraseña: ${clave}`,
+      text: `Hola ${user.nombres} ${user.apellidos}, su nombre de usuario es: ${user.correo} y contraseña: ${clave}`,
     };
 
     try {
