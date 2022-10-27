@@ -23,18 +23,6 @@ export class Usuario extends Entity {
 
   @property({
     type: 'string',
-    required: false,
-  })
-  direccion: string;
-
-  @property({
-    type: 'string',
-    required: false,
-  })
-  celular: string;
-
-  @property({
-    type: 'string',
     required: true,
   })
   correo: string;
@@ -47,13 +35,7 @@ export class Usuario extends Entity {
 
   @property({
     type: 'string',
-    required: true,
-  })
-  tipoDocumento: string;
-
-  @property({
-    type: 'string',
-    required: true,
+    required: false,
   })
   contrasena: string;
 

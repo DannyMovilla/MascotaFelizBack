@@ -1,7 +1,7 @@
 import {Entity, model, property} from '@loopback/repository';
 
 @model()
-export class Ciudad extends Entity {
+export class Sucursal extends Entity {
   @property({
     type: 'string',
     id: true,
@@ -13,22 +13,28 @@ export class Ciudad extends Entity {
     type: 'string',
     required: true,
   })
-  codigo: string;
+  departamento: string;
 
   @property({
     type: 'string',
     required: true,
   })
-  nombre: string;
+  ciudad: string;
+
+  @property({
+    type: 'string',
+    required: true,
+  })
+  direccion: string;
 
 
-  constructor(data?: Partial<Ciudad>) {
+  constructor(data?: Partial<Sucursal>) {
     super(data);
   }
 }
 
-export interface CiudadRelations {
+export interface SucursalRelations {
   // describe navigational properties here
 }
 
-export type CiudadWithRelations = Ciudad & CiudadRelations;
+export type SucursalWithRelations = Sucursal & SucursalRelations;
