@@ -1,4 +1,4 @@
-import {Entity, model, property, hasOne} from '@loopback/repository';
+import {Entity, model, property, hasMany} from '@loopback/repository';
 import {Usuario} from './usuario.model';
 
 @model()
@@ -22,8 +22,8 @@ export class Rol extends Entity {
   })
   nombre: string;
 
-  @hasOne(() => Usuario)
-  usuario: Usuario;
+  @hasMany(() => Usuario)
+  usuarios: Usuario[];
 
   constructor(data?: Partial<Rol>) {
     super(data);

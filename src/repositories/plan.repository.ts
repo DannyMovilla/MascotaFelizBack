@@ -1,5 +1,5 @@
 import {inject, Getter} from '@loopback/core';
-import {DefaultCrudRepository, repository, HasOneRepositoryFactory} from '@loopback/repository';
+import {DefaultCrudRepository, repository, HasManyRepositoryFactory} from '@loopback/repository';
 import {MongodbDataSource} from '../datasources';
 import {Plan, PlanRelations, Mascota} from '../models';
 import {MascotaRepository} from './mascota.repository';
@@ -10,13 +10,11 @@ export class PlanRepository extends DefaultCrudRepository<
   PlanRelations
 > {
 
-  public readonly mascota: HasOneRepositoryFactory<Mascota, typeof Plan.prototype.id>;
+  public readonly mascotas: HasManyRepositoryFactory<Mascota, typeof Plan.prototype.id>;
 
-  constructor(
-    @inject('datasources.mongodb') dataSource: MongodbDataSource, @repository.getter('MascotaRepository') protected mascotaRepositoryGetter: Getter<MascotaRepository>,
-  ) {
+  constructor(@inject('datasources.mongodb') dataSource: MongodbDataSource, @repository.getter('MascotaRepository') protected mascotaRepositoryGetter: Getter<MascotaRepository>,) {
     super(Plan, dataSource);
-    this.mascota = this.createHasOneRepositoryFactoryFor('mascota', mascotaRepositoryGetter);
-    this.registerInclusionResolver('mascota', this.mascota.inclusionResolver);
+    this.mascotas = this.createHasManyRepositoryFactoryFor('mascotas', mascotaRepositoryGetter,);
+    this.registerInclusionResolver('mascotas', this.mascotas.inclusionResolver);
   }
 }

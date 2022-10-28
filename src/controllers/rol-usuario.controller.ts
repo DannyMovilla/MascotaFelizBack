@@ -26,26 +26,26 @@ export class RolUsuarioController {
     @repository(RolRepository) protected rolRepository: RolRepository,
   ) { }
 
-  @get('/rols/{id}/usuario', {
+  @get('/rols/{id}/usuarios', {
     responses: {
       '200': {
-        description: 'Rol has one Usuario',
+        description: 'Array of Rol has many Usuario',
         content: {
           'application/json': {
-            schema: getModelSchemaRef(Usuario),
+            schema: {type: 'array', items: getModelSchemaRef(Usuario)},
           },
         },
       },
     },
   })
-  async get(
+  async find(
     @param.path.string('id') id: string,
     @param.query.object('filter') filter?: Filter<Usuario>,
-  ): Promise<Usuario> {
-    return this.rolRepository.usuario(id).get(filter);
+  ): Promise<Usuario[]> {
+    return this.rolRepository.usuarios(id).find(filter);
   }
 
-  @post('/rols/{id}/usuario', {
+  @post('/rols/{id}/usuarios', {
     responses: {
       '200': {
         description: 'Rol model instance',
@@ -67,10 +67,10 @@ export class RolUsuarioController {
       },
     }) usuario: Omit<Usuario, 'id'>,
   ): Promise<Usuario> {
-    return this.rolRepository.usuario(id).create(usuario);
+    return this.rolRepository.usuarios(id).create(usuario);
   }
 
-  @patch('/rols/{id}/usuario', {
+  @patch('/rols/{id}/usuarios', {
     responses: {
       '200': {
         description: 'Rol.Usuario PATCH success count',
@@ -90,10 +90,10 @@ export class RolUsuarioController {
     usuario: Partial<Usuario>,
     @param.query.object('where', getWhereSchemaFor(Usuario)) where?: Where<Usuario>,
   ): Promise<Count> {
-    return this.rolRepository.usuario(id).patch(usuario, where);
+    return this.rolRepository.usuarios(id).patch(usuario, where);
   }
 
-  @del('/rols/{id}/usuario', {
+  @del('/rols/{id}/usuarios', {
     responses: {
       '200': {
         description: 'Rol.Usuario DELETE success count',
@@ -105,6 +105,6 @@ export class RolUsuarioController {
     @param.path.string('id') id: string,
     @param.query.object('where', getWhereSchemaFor(Usuario)) where?: Where<Usuario>,
   ): Promise<Count> {
-    return this.rolRepository.usuario(id).delete(where);
+    return this.rolRepository.usuarios(id).delete(where);
   }
 }

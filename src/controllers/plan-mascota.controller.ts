@@ -26,26 +26,26 @@ export class PlanMascotaController {
     @repository(PlanRepository) protected planRepository: PlanRepository,
   ) { }
 
-  @get('/plans/{id}/mascota', {
+  @get('/plans/{id}/mascotas', {
     responses: {
       '200': {
-        description: 'Plan has one Mascota',
+        description: 'Array of Plan has many Mascota',
         content: {
           'application/json': {
-            schema: getModelSchemaRef(Mascota),
+            schema: {type: 'array', items: getModelSchemaRef(Mascota)},
           },
         },
       },
     },
   })
-  async get(
+  async find(
     @param.path.string('id') id: string,
     @param.query.object('filter') filter?: Filter<Mascota>,
-  ): Promise<Mascota> {
-    return this.planRepository.mascota(id).get(filter);
+  ): Promise<Mascota[]> {
+    return this.planRepository.mascotas(id).find(filter);
   }
 
-  @post('/plans/{id}/mascota', {
+  @post('/plans/{id}/mascotas', {
     responses: {
       '200': {
         description: 'Plan model instance',
@@ -67,10 +67,10 @@ export class PlanMascotaController {
       },
     }) mascota: Omit<Mascota, 'id'>,
   ): Promise<Mascota> {
-    return this.planRepository.mascota(id).create(mascota);
+    return this.planRepository.mascotas(id).create(mascota);
   }
 
-  @patch('/plans/{id}/mascota', {
+  @patch('/plans/{id}/mascotas', {
     responses: {
       '200': {
         description: 'Plan.Mascota PATCH success count',
@@ -90,10 +90,10 @@ export class PlanMascotaController {
     mascota: Partial<Mascota>,
     @param.query.object('where', getWhereSchemaFor(Mascota)) where?: Where<Mascota>,
   ): Promise<Count> {
-    return this.planRepository.mascota(id).patch(mascota, where);
+    return this.planRepository.mascotas(id).patch(mascota, where);
   }
 
-  @del('/plans/{id}/mascota', {
+  @del('/plans/{id}/mascotas', {
     responses: {
       '200': {
         description: 'Plan.Mascota DELETE success count',
@@ -105,6 +105,6 @@ export class PlanMascotaController {
     @param.path.string('id') id: string,
     @param.query.object('where', getWhereSchemaFor(Mascota)) where?: Where<Mascota>,
   ): Promise<Count> {
-    return this.planRepository.mascota(id).delete(where);
+    return this.planRepository.mascotas(id).delete(where);
   }
 }
