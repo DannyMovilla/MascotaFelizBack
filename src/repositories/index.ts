@@ -5,3 +5,4 @@ export * from './prospectos.repository';
 export * from './rol.repository';
 export * from './sucursal.repository';
 export * from './usuario.repository';
+export * from './menu-rol.repository';

@@ -7,23 +7,36 @@ import {
   Where,
 } from '@loopback/repository';
 import {
-  post,
-  param,
+  del,
   get,
   getModelSchemaRef,
+  param,
   patch,
+  post,
   put,
-  del,
   requestBody,
   response,
 } from '@loopback/rest';
-import {Mascota} from '../models';
-import {MascotaRepository} from '../repositories';
+import {Llaves} from '../config/llaves';
+import {Mascota, Rol, Usuario} from '../models';
+import {
+  MascotaRepository,
+  PlanRepository,
+  RolRepository,
+  UsuarioRepository,
+} from '../repositories';
+const fetch = require('node-fetch');
 
 export class MascotaController {
   constructor(
     @repository(MascotaRepository)
-    public mascotaRepository : MascotaRepository,
+    public mascotaRepository: MascotaRepository,
+    @repository(UsuarioRepository)
+    public usuarioRepository: UsuarioRepository,
+    @repository(RolRepository)
+    public rolRepository: RolRepository,
+    @repository(PlanRepository)
+    public planRepository: PlanRepository,
   ) {}
 
   @post('/mascotas')
@@ -44,7 +57,78 @@ export class MascotaController {
     })
     mascota: Omit<Mascota, 'id'>,
   ): Promise<Mascota> {
-    return this.mascotaRepository.create(mascota);
+    const mascotaCreate = await this.mascotaRepository.create(mascota);
+
+    const roles = await this.rolRepository.find();
+    let rolUsuario: Rol = new Rol();
+
+    // eslint-disable-next-line @typescript-eslint/prefer-for-of
+    for (let index = 0; index < roles.length; index++) {
+      const element = roles[index];
+      // eslint-disable-next-line eqeqeq
+      if (element.codigo == 'ADMIN') {
+        rolUsuario = element;
+      }
+    }
+
+    const filter: Filter<Usuario> = {
+      where: {
+        rolId: rolUsuario.id,
+      },
+      fields: {
+        correo: true,
+        nombres: true,
+        apellidos: true,
+      },
+      offset: 0,
+      limit: 10,
+      skip: 0,
+      order: [],
+    };
+
+    const users = await this.usuarioRepository.find(filter);
+
+    const cliente = await this.usuarioRepository.findById(mascota.usuarioId);
+    const plan = await this.planRepository.findById(mascota.planId);
+
+    if (users.length > 0) {
+      // eslint-disable-next-line @typescript-eslint/prefer-for-of
+      for (let index = 0; index < users.length; index++) {
+        const admin = users[index];
+
+        //Notificar usuario
+        const body = {
+          to: admin.correo,
+          subject: 'Nueva Solicitud Afiliación - Mascota Feliz',
+          text: `Hola ${admin.nombres} ${admin.apellidos}, un cliente ha solicitado una solicitud de afiliación, estos son los datos:
+            <br/>
+            Nombre mascota: ${mascotaCreate.nombre}
+            <br/>
+            Cliente: ${cliente.nombres} ${cliente.apellidos}
+            <br/>
+            Cliente: ${plan.nombre}`,
+        };
+
+        try {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const responses = await fetch(
+            `${Llaves.urlServicioNotificaciones}/mail`,
+            {
+              method: 'post',
+              body: JSON.stringify(body),
+              headers: {'Content-Type': 'application/json'},
+            },
+          );
+          const data = await responses.json();
+
+          console.log(data);
+        } catch (error) {
+          console.log(error);
+        }
+      }
+    }
+
+    return mascotaCreate;
   }
 
   @get('/mascotas/count')
@@ -52,9 +136,7 @@ export class MascotaController {
     description: 'Mascota model count',
     content: {'application/json': {schema: CountSchema}},
   })
-  async count(
-    @param.where(Mascota) where?: Where<Mascota>,
-  ): Promise<Count> {
+  async count(@param.where(Mascota) where?: Where<Mascota>): Promise<Count> {
     return this.mascotaRepository.count(where);
   }
 
@@ -106,7 +188,8 @@ export class MascotaController {
   })
   async findById(
     @param.path.string('id') id: string,
-    @param.filter(Mascota, {exclude: 'where'}) filter?: FilterExcludingWhere<Mascota>
+    @param.filter(Mascota, {exclude: 'where'})
+    filter?: FilterExcludingWhere<Mascota>,
   ): Promise<Mascota> {
     return this.mascotaRepository.findById(id, filter);
   }
