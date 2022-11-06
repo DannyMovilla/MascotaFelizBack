@@ -100,7 +100,7 @@ export class MascotaController {
         const body = {
           to: admin.correo,
           subject: 'Nueva Solicitud Afiliación - Mascota Feliz',
-          text: `Hola ${admin.nombres} ${admin.apellidos}, un cliente ha solicitado una solicitud de afiliación, estos son los datos:
+          text: `Hola ${admin.nombres} ${admin.apellidos}, un cliente ha realizado una solicitud de afiliación, estos son los datos:
             <br/>
             Nombre mascota: ${mascotaCreate.nombre}
             <br/>
