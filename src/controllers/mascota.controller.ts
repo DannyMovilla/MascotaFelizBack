@@ -212,6 +212,64 @@ export class MascotaController {
     await this.mascotaRepository.updateById(id, mascota);
   }
 
+  @patch('/mascotas/estadoafiliacion/{id}')
+  @response(204, {
+    description: 'Mascota PATCH success',
+  })
+  async updateEstadoById(
+    @param.path.string('id') id: string,
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: getModelSchemaRef(Mascota, {partial: true}),
+        },
+      },
+    })
+    mascota: Mascota,
+  ): Promise<void> {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const mascotaUpdate = await this.mascotaRepository.updateById(id, mascota);
+
+    const mascotaFound = await this.mascotaRepository.findOne({
+      where: {id: id},
+    });
+
+    const userFound = await this.usuarioRepository.findOne({
+      where: {id: mascotaFound?.usuarioId},
+    });
+    if (userFound) {
+      //Notificar usuario
+      const body = {
+        to: userFound.correo,
+        subject: 'Respuesta Solicitud Afiliación - Mascota Feliz',
+        text: `Hola ${userFound.nombres} ${userFound.apellidos}, su solicitud de afiliación fue respondida:
+      <br>
+      Estado: ${mascota.estado}
+      <br>
+      Fecha Afiliación: ${mascota.fechaAfiliacion}
+      <br>
+      Detalle: ${mascota.detalle}`,
+      };
+
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const responses = await fetch(
+          `${Llaves.urlServicioNotificaciones}/mail`,
+          {
+            method: 'post',
+            body: JSON.stringify(body),
+            headers: {'Content-Type': 'application/json'},
+          },
+        );
+        const data = await responses.json();
+
+        console.log(data);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
+
   @put('/mascotas/{id}')
   @response(204, {
     description: 'Mascota PUT success',
