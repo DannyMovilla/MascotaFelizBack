@@ -93,14 +93,14 @@ export class ProspectosController {
         //Notificar usuario
         const body = {
           to: admin.correo,
-          subject: 'Nuevo Prospecto - Mascota Feliz',
-          text: `Hola ${admin.nombres} ${admin.apellidos}, se ha registrado en la aplicación un nuevo prospecto
+          subject: 'Nuevo Prospecto',
+          text: `Hola <strong>${admin.nombres} ${admin.apellidos}</strong>, se ha registrado en la aplicación un nuevo prospecto:
             <br/>
-            Nombre: ${prospecto.nombres}
+            <strong>Nombre:</strong> ${prospecto.nombres}
             <br/>
-            Correo: ${prospecto.correo}
+            <strong>Correo:</strong> ${prospecto.correo}
             <br/>
-            Mensaje: ${prospecto.mensaje} `,
+            <strong>Mensaje:</strong> ${prospecto.mensaje} `,
         };
 
         try {

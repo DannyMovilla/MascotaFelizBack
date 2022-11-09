@@ -98,8 +98,12 @@ export class UsuarioController {
       //Notificar usuario
       const body = {
         to: userFound.correo,
-        subject: 'Restablecer la contraseña - Mascota Feliz',
-        text: `Hola ${userFound.nombres} ${userFound.apellidos}, su nombre de usuario es: ${userFound.correo} y contraseña: ${clave}`,
+        subject: 'Restablecer la contraseña',
+        text: `Hola <strong>${userFound.nombres} ${userFound.apellidos}</strong>, estos son tus nuevos datos de ingreso:
+              <br>
+              <strong>Usuario:</strong> ${userFound.correo}
+              <br>
+              <strong>contraseña:</strong> ${clave}`,
       };
 
       try {
@@ -174,8 +178,12 @@ export class UsuarioController {
     //Notificar usuario
     const body = {
       to: user.correo,
-      subject: 'Registro en la Plataforma - Mascota Feliz',
-      text: `Hola ${user.nombres} ${user.apellidos}, su nombre de usuario es: ${user.correo} y contraseña: ${clave}`,
+      subject: 'Registro en la Plataforma',
+      text: `Hola <strong>${user.nombres} ${user.apellidos}</strong>, estos son tus datos de ingreso:
+            <br>
+            <strong>Usuario:</strong> ${user.correo}
+            <br>
+            <strong>contraseña:</strong> ${clave}`,
     };
 
     try {

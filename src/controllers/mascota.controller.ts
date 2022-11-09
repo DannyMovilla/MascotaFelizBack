@@ -99,7 +99,7 @@ export class MascotaController {
         //Notificar usuario
         const body = {
           to: admin.correo,
-          subject: 'Nueva Solicitud Afiliación - Mascota Feliz',
+          subject: 'Nueva Solicitud Afiliación',
           text: `Hola ${admin.nombres} ${admin.apellidos}, un cliente ha realizado una solicitud de afiliación, estos son los datos:
             <br/>
             Nombre mascota: ${mascotaCreate.nombre}
@@ -241,14 +241,14 @@ export class MascotaController {
       //Notificar usuario
       const body = {
         to: userFound.correo,
-        subject: 'Respuesta Solicitud Afiliación - Mascota Feliz',
-        text: `Hola ${userFound.nombres} ${userFound.apellidos}, su solicitud de afiliación fue respondida:
-      <br>
-      Estado: ${mascota.estado}
-      <br>
-      Fecha Afiliación: ${mascota.fechaAfiliacion}
-      <br>
-      Detalle: ${mascota.detalle}`,
+        subject: 'Respuesta Solicitud Afiliación',
+        text: `Hola <strong>${userFound.nombres} ${userFound.apellidos}</strong>, su solicitud de afiliación fue respondida:
+              <br>
+              <strong>Estado:</strong> ${mascota.estado}
+              <br>
+              <strong>Fecha Afiliación:</strong> ${mascota.fechaAfiliacion}
+              <br>
+              <strong>Detalle:</strong> ${mascota.detalle}`,
       };
 
       try {
