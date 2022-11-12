@@ -76,6 +76,44 @@ export class UsuarioController {
     }
   }
 
+  @post('/loginGoogle', {
+    responses: {
+      '200': {
+        description: 'Login Google Mascota Feliz',
+      },
+    },
+  })
+  async loginGoogle(@requestBody() credenciales: Credenciales) {
+    const p = await this.authServices.usuarioGoogle(credenciales.usuario);
+    if (p) {
+      const roles = await this.rolRepository.find();
+
+      let rolUsuario: Rol = new Rol();
+
+      // eslint-disable-next-line @typescript-eslint/prefer-for-of
+      for (let index = 0; index < roles.length; index++) {
+        const element = roles[index];
+        // eslint-disable-next-line eqeqeq
+        if (element.id == p.rolId) {
+          rolUsuario = element;
+        }
+      }
+
+      const token = this.authServices.generarTokenJWT(p, rolUsuario);
+      return {
+        datos: {
+          nombre: p.nombres + ' ' + p.apellidos,
+          correo: p.correo,
+          id: p.id,
+        },
+        rolUsuario,
+        tk: token,
+      };
+    } else {
+      throw new HttpErrors[401]('Datos no válidos');
+    }
+  }
+
   @post('/reset-password/{usuario}', {
     responses: {
       '200': {

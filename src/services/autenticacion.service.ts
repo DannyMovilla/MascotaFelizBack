@@ -42,6 +42,21 @@ export class AutenticacionService {
     }
   }
 
+  usuarioGoogle(usuario: string) {
+    try {
+      const p = this.usuarioRepository.findOne({
+        where: {correo: usuario},
+      });
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises
+      if (p) {
+        return p;
+      }
+      return false;
+    } catch {
+      return false;
+    }
+  }
+
   generarTokenJWT(usuario: Usuario, rol: Rol) {
     const token = jwt.sign(
       {
