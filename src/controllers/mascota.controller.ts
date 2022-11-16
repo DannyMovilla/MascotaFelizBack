@@ -1,3 +1,4 @@
+import {inject, service} from '@loopback/core';
 import {
   Count,
   CountSchema,
@@ -14,17 +15,23 @@ import {
   patch,
   post,
   put,
+  Request,
   requestBody,
   response,
+  RestBindings,
 } from '@loopback/rest';
+import parseBearerToken from 'parse-bearer-token';
 import {Llaves} from '../config/llaves';
 import {Mascota, Rol, Usuario} from '../models';
 import {
+  MascotaAsesorRepository,
   MascotaRepository,
   PlanRepository,
   RolRepository,
   UsuarioRepository,
 } from '../repositories';
+import {AutenticacionService} from '../services';
+
 const fetch = require('node-fetch');
 
 export class MascotaController {
@@ -37,6 +44,11 @@ export class MascotaController {
     public rolRepository: RolRepository,
     @repository(PlanRepository)
     public planRepository: PlanRepository,
+    @repository(MascotaAsesorRepository)
+    public mascotaAsesorRepository: MascotaAsesorRepository,
+    @service(AutenticacionService)
+    public servicioAutenticacion: AutenticacionService,
+    @inject(RestBindings.Http.REQUEST) private req: Request,
   ) {}
 
   @post('/mascotas')
@@ -229,6 +241,17 @@ export class MascotaController {
   ): Promise<void> {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const mascotaUpdate = await this.mascotaRepository.updateById(id, mascota);
+
+    const token = parseBearerToken(this.req);
+    const datos = this.servicioAutenticacion.validarTokenJWT(token!);
+
+    if (datos) {
+      const newData = {
+        asesorId: datos.data.id,
+        mascotaId: id,
+      };
+      await this.mascotaAsesorRepository.create(newData);
+    }
 
     const mascotaFound = await this.mascotaRepository.findOne({
       where: {id: id},

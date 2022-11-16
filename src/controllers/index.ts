@@ -13,3 +13,4 @@ export * from './usuario-rol.controller';
 export * from './usuario.controller';
 export * from './plan-mascota.controller';
 export * from './menu-rol.controller';
+export * from './asesor-mascota.controller';

@@ -7,3 +7,4 @@ export * from './producto-servicio.model';
 export * from './plan.model';
 export * from './mascota.model';
 export * from './menu-rol.model';
+export * from './mascota-asesor.model';
