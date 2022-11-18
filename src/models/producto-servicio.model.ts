@@ -27,6 +27,11 @@ export class ProductoServicio extends Entity {
   })
   precio: string;
 
+  @property({
+    type: 'string',
+    required: true,
+  })
+  foto: string;
 
   constructor(data?: Partial<ProductoServicio>) {
     super(data);
@@ -37,4 +42,5 @@ export interface ProductoServicioRelations {
   // describe navigational properties here
 }
 
-export type ProductoServicioWithRelations = ProductoServicio & ProductoServicioRelations;
+export type ProductoServicioWithRelations = ProductoServicio &
+  ProductoServicioRelations;
