@@ -31,6 +31,12 @@ export class ProductoServicio extends Entity {
     type: 'string',
     required: true,
   })
+  nombre: string;
+
+  @property({
+    type: 'string',
+    required: true,
+  })
   foto: string;
 
   constructor(data?: Partial<ProductoServicio>) {
